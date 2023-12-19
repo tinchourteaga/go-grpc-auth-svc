@@ -25,9 +25,10 @@ type service struct {
 	jwt        utils.JwtWrapper
 }
 
-func NewService(repo Repository) Service {
+func NewService(repo Repository, jwt utils.JwtWrapper) Service {
 	return &service{
 		repository: repo,
+		jwt:        jwt,
 	}
 }
 
