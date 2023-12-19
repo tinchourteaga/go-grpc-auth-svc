@@ -38,7 +38,7 @@ func (a *Authentication) Login(ctx context.Context, req *pb.LoginRequest) *pb.Lo
 	token, err := a.authSvc.Login(ctx, user)
 	if err != nil {
 		return &pb.LoginResponse{
-			Status: http.StatusConflict,
+			Status: http.StatusNotFound,
 			Error:  err.Error(),
 		}
 	}
@@ -46,5 +46,20 @@ func (a *Authentication) Login(ctx context.Context, req *pb.LoginRequest) *pb.Lo
 	return &pb.LoginResponse{
 		Status: http.StatusOK,
 		Token:  token,
+	}
+}
+
+func (a *Authentication) Validate(ctx context.Context, req *pb.ValidateRequest) *pb.ValidateResponse {
+	userId, err := a.authSvc.Validate(ctx, req.Token)
+	if err != nil {
+		return &pb.ValidateResponse{
+			Status: http.StatusNotFound,
+			Error:  err.Error(),
+		}
+	}
+
+	return &pb.ValidateResponse{
+		Status: http.StatusOK,
+		UserId: userId,
 	}
 }

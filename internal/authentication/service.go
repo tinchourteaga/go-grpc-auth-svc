@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/tinchourteaga/go-grpc-auth-svc/internal/models"
 	"github.com/tinchourteaga/go-grpc-auth-svc/pkg/utils"
@@ -10,11 +11,13 @@ import (
 
 const (
 	ErrInvalidCredentials = "invalid credentials"
+	ErrInvalidToken       = "invalid token"
 )
 
 type Service interface {
 	Register(context.Context, models.User) error
-	Login(ctx context.Context, user models.User) (string, error)
+	Login(context.Context, models.User) (string, error)
+	Validate(context.Context, string) (string, error)
 }
 
 type service struct {
@@ -52,4 +55,18 @@ func (s *service) Login(ctx context.Context, user models.User) (string, error) {
 	token, _ := s.jwt.GenerateToken(dbUser)
 
 	return token, nil
+}
+
+func (s *service) Validate(ctx context.Context, token string) (string, error) {
+	claims, err := s.jwt.ValidateToken(token)
+	if err != nil {
+		return "", errors.New(ErrInvalidToken)
+	}
+
+	dbUser, err := s.repository.GetByEmail(ctx, claims.Email)
+	if err != nil {
+		return "", errors.New(ErrInvalidToken)
+	}
+
+	return strconv.Itoa(int(dbUser.Id)), nil
 }
