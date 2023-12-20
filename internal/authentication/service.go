@@ -33,7 +33,7 @@ func NewService(repo Repository, jwt utils.JwtWrapper) Service {
 }
 
 func (s *service) Register(ctx context.Context, user models.User) error {
-	user.Email = utils.HashPassword(user.Email)
+	user.Password = utils.HashPassword(user.Password)
 	err := s.repository.Create(ctx, user)
 	if err != nil {
 		return err

@@ -15,6 +15,7 @@ import (
 )
 
 func main() {
+	fmt.Println("Starting server...")
 	err := config.Load()
 	if err != nil {
 		log.Error().Msg("config loading: " + err.Error())
@@ -37,10 +38,10 @@ func main() {
 	service := authentication.NewService(repo, jwt)
 	handler := authentication.NewAuthentication(service)
 
+	fmt.Println("Auth service listening on: " + viper.GetString("PORT"))
+
 	pb.RegisterAuthServiceServer(grpcServer, handler)
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatal().Msg("failed to serve: " + err.Error())
 	}
-
-	fmt.Println("Auth service listening on: " + viper.GetString("PORT"))
 }
